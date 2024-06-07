@@ -1,24 +1,23 @@
 package main
 
 import (
-	"fmt"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Category struct {
-	ID   int `gorm:"primaryKey"`
-	Name string
+	ID       int `gorm:"primaryKey"`
+	Name     string
+	Products []Product `gorm:"many2many:products_categories;"`
 }
 
 type Product struct {
 	ID           int `gorm:"primaryKey"`
 	Name         string
 	Price        float64
-	CategoryID   int
-	Category     Category
 	SerialNumber SerialNumber
+	Categories   []Category `gorm:"many2many:products_categories;"`
 	gorm.Model
 }
 
@@ -34,21 +33,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&Product{}, &Category{})
+	db.AutoMigrate(&Product{}, &Category{}, &SerialNumber{})
 
-	category := Category{Name: "Electronics"}
-	db.Create(&category)
-
-	db.Create(&Product{
-		Name:       "Laptop",
-		Price:      1899.99,
-		CategoryID: category.ID,
-	})
-
-	var products []Product
-	db.Preload("Category").Find(&products)
-	for _, product := range products {
-		fmt.Println(product.Name, product.Category.Name, product.SerialNumber.Number)
+	tx := db.Begin()
+	var c Category
+	err = tx.Debug().Clauses(clause.Locking{Strength: "UPDATE"}).First(&c, 1).Error
+	if err != nil {
+		panic(err)
 	}
+	c.Name = "Eletronicos - edited"
+	tx.Debug().Save(&c).Commit()
 
 }
