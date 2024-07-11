@@ -1,0 +1,37 @@
+syntax = "proto3";
+package pb;
+option go_package = "internal/pb";
+
+message blank{}
+
+message Product {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    double price = 4;
+}
+
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    double price = 3;
+}
+message ProductResponse {
+    Product product = 1;
+}
+
+message ProductList {
+    repeated Product products = 1;
+}
+
+message ProductGetRequest {
+    string id = 1;
+}
+
+service ProductService {
+    rpc CreateProduct(CreateProductRequest) returns (Product){}
+    rpc CreateProductStream(stream CreateProductRequest) returns (ProductList){}
+    rpc CreateProductStreamBidirectional(stream CreateProductRequest) returns (stream Product){}
+    rpc ListProducts(blank) returns (ProductList) {}
+    rpc GetCategory(ProductGetRequest) returns (Product) {}
+}
