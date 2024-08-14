@@ -8,12 +8,11 @@ import (
 // T1
 func main() {
 	data := make(chan int)
-	qtdWorkers := 100000
-	for i := 0; i < qtdWorkers; i++ {
-		go worker(i, data)
-	}
+	go worker(1, data)
+	go worker(2, data)
+	go worker(3, data)
 
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 5; i++ {
 		data <- i
 	}
 }
@@ -21,6 +20,6 @@ func main() {
 func worker(workerId int, data chan int) {
 	for x := range data {
 		fmt.Printf("Worker %d received: %d\n", workerId, x)
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 1)
 	}
 }
