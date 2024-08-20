@@ -16,3 +16,11 @@ where id = ?;
 -- name: DeleteCategory :exec
 delete from categories
 where id = ?;
+
+-- name: CreateCourse :exec
+insert into courses(id, category_id, name, description, price)
+values (?, ?, ?, ?, ?);
+
+-- name: ListCourses :many
+select c.*, ca.name as category_name
+from courses c JOIN categories ca ON c.category_id = ca.id;
